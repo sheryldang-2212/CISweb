@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Search, Eye, PowerOff, Mail, XCircle, UserPlus, Play, Shield } from 'lucide-react';
+import { Download, Search, Eye, PowerOff, Mail, XCircle, UserPlus, Play, Shield, Key } from 'lucide-react';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import InviteStaffDrawer from './InviteStaffDrawer';
 import UserFormModal from './UserFormModal';
@@ -56,14 +56,7 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
     { label: 'Receptionist', value: 5 },
   ];
 
-  // Get invitation status based on user status
-  const getInvitationStatus = (status: string) => {
-    if (status === 'Active' || status === 'Inactive' || status === 'Locked') return 'Accepted';
-    if (status === 'Pending Invitation') return 'Sent';
-    if (status === 'Invitation Expired') return 'Expired';
-    if (status === 'Cancelled') return 'Cancelled';
-    return '-';
-  };
+
 
   const handleInviteStaff = (invitedUsers: any[]) => {
     console.log(`[AUDIT] ${currentRole || 'Admin'} invited staff:`, invitedUsers);
@@ -91,6 +84,18 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
   const handleCancelInvite = (userId: string) => {
     console.log('[AUDIT] Invitation cancelled for user ID', userId);
     setUsersList(usersList.filter(u => u.id !== userId));
+    setOpenMenuId(null);
+  };
+
+  const handleDeactivate = (userId: string) => {
+    console.log('[AUDIT] User deactivated:', userId);
+    setUsersList(usersList.map(u => u.id === userId ? { ...u, status: 'Inactive' } : u));
+    setOpenMenuId(null);
+  };
+
+  const handleReactivate = (userId: string) => {
+    console.log('[AUDIT] User reactivated:', userId);
+    setUsersList(usersList.map(u => u.id === userId ? { ...u, status: 'Active' } : u));
     setOpenMenuId(null);
   };
 
@@ -282,6 +287,7 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
         <UserDetailsDrawer 
           user={viewUser} 
           onClose={() => setViewUser(null)} 
+          onEdit={() => handleEditUser(viewUser)}
         />
       )}
       

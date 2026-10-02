@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Download, Eye, X, Database, AlertCircle, ShieldAlert, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Download, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import './AuditLogs.css';
 
 const MOCK_LOGS = [

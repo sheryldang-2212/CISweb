@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, FileText, CheckCircle, XCircle, AlertTriangle, Send } from 'lucide-react';
+import { X, Upload, CheckCircle, XCircle, AlertTriangle, Send } from 'lucide-react';
 import './BulkInviteDrawer.css';
 
 interface BulkInviteDrawerProps {

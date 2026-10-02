@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, FileText, CheckCircle, XCircle, AlertTriangle, Send, User, Mail, Phone, Shield, Building2, Download } from 'lucide-react';
+import { X, Upload, CheckCircle, XCircle, AlertTriangle, Send, User, Mail, Phone, Shield, Building2, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import './InviteStaffDrawer.css';
 
