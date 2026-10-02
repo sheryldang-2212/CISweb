@@ -187,10 +187,12 @@ export default function ReportsAnalytics({ currentRole }: ReportsAnalyticsProps)
       <div className="filters-section">
         <div className="filters-title">Filters</div>
         <div className="filters-grid">
-          <div className="filter-group">
-            <label>Clinic</label>
-            <select className="filter-select"><option>All clinics</option></select>
-          </div>
+          {isPlatform && (
+            <div className="filter-group">
+              <label>Clinic</label>
+              <select className="filter-select"><option>All clinics</option></select>
+            </div>
+          )}
           <div className="filter-group">
             <label>Start date</label>
             <div className="date-input-container">

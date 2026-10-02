@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { Search, RefreshCw, Database, Filter } from 'lucide-react';
+import { Search, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import './GlobalTestMaster.css';
 
-// Mock data for Global Test Master from LIS
-const INITIAL_TESTS = [
-  { id: 't1', code: 'HEM-001', name: 'Complete Blood Count (CBC)', category: 'Hematology', unit: '—', lisCode: 'LIS-CBC', refRange: 'Male: 13.5-17.5 g/dL\nFemale: 12.0-15.5 g/dL', active: true },
-  { id: 't2', code: 'HEM-002', name: 'Hemoglobin', category: 'Hematology', unit: 'g/dL', lisCode: 'LIS-HGB', refRange: 'Male: 13.5-17.5\nFemale: 12.0-15.5', active: true },
-  { id: 't3', code: 'BIO-001', name: 'Fasting Glucose', category: 'Biochemistry', unit: 'mg/dL', lisCode: 'LIS-GLU-F', refRange: '70 - 99', active: true },
-  { id: 't4', code: 'BIO-002', name: 'HbA1c', category: 'Biochemistry', unit: '%', lisCode: 'LIS-HBA1C', refRange: '< 5.7', active: true },
-  { id: 't5', code: 'BIO-003', name: 'Lipid Profile', category: 'Biochemistry', unit: 'mg/dL', lisCode: 'LIS-LIPID', refRange: 'LDL < 100\nHDL > 40', active: true },
-  { id: 't6', code: 'IMM-001', name: 'TSH', category: 'Immunology', unit: 'mIU/L', lisCode: 'LIS-TSH', refRange: '0.4 - 4.0', active: true },
-  { id: 't7', code: 'IMM-002', name: 'Free T4', category: 'Immunology', unit: 'ng/dL', lisCode: 'LIS-FT4', refRange: '0.8 - 1.8', active: false },
-  { id: 't8', code: 'MIC-001', name: 'Urine Culture', category: 'Microbiology', unit: 'CFU/mL', lisCode: 'LIS-UR-CULT', refRange: '< 10,000', active: true },
+const MOCK_TESTS = [
+  { code: '15694', test: '(1,3)-β-d-glucan (BDG)', category: 'Out lab', specimens: 'Serum' },
+  { code: '13058', test: '(ยกเลิก ใช้15342แทน) Cholinesterase in Erythrocyte', category: 'Out lab', specimens: 'EDTA blood' },
+  { code: '15187', test: '(ยกเลิก) Diazepam (Valium)', category: 'Immunology', specimens: 'Serum' },
+  { code: '17034', test: '(ยกเลิก) Multiplex PCR for beta-thalassemia (13 common mutations)', category: 'Out lab', specimens: 'EDTA sterile blood' },
+  { code: '17066', test: '(ยกเลิก)Multiplex PCR for beta-thalassemia (21 types)', category: 'Out lab', specimens: 'EDTA sterile blood' },
+  { code: '17039', test: '(ยกเลิก)Thalassemia-beta Mutation', category: 'Out lab', specimens: 'EDTA blood' },
+  { code: 'S062', test: '(ยกเลิก)เบิกชุดเก็บ Cortisol (Salivary) (รามา)', category: 'Supply', specimens: 'N/A' },
+  { code: 'C094', test: '10q LOH [Hitech]', category: 'Pathology', specimens: 'N/A' },
 ];
 
 export default function GlobalTestMaster() {
-  const [tests, setTests] = useState(INITIAL_TESTS);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -23,112 +21,109 @@ export default function GlobalTestMaster() {
     setIsSyncing(true);
     setTimeout(() => {
       setIsSyncing(false);
-      // In a real app, this would fetch updated list from LIS
     }, 1500);
   };
 
-  const toggleStatus = (id: string) => {
-    setTests(tests.map(t => t.id === id ? { ...t, active: !t.active } : t));
-  };
-
-  const filteredTests = tests.filter(t => 
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    t.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTests = MOCK_TESTS.filter(t => 
+    t.test.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    t.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="global-test-master-container fadeIn">
-      <div className="gtm-header">
-        <div className="gtm-title-area">
-          <h2><Database size={24} style={{ color: 'var(--primary)' }}/> Global Test Master</h2>
-          <p>Centralized catalog of all available laboratory tests synchronized from LIS.</p>
-        </div>
-        <div className="gtm-actions">
+    <div className="gtm-wrapper fadeIn">
+      <p className="gtm-top-text">
+        Every test the LIS publishes, as of the last sync. Enabling tests per clinic is not built yet — receptionists currently see the whole catalogue.
+      </p>
+
+      <div className="gtm-main-card">
+        {/* Header */}
+        <div className="gtm-header">
+          <div className="gtm-header-info">
+            <h2 className="gtm-title">LIS test catalogue</h2>
+            <p className="gtm-subtitle">Last synced 2026-10-01 03:00 - 1786 tests</p>
+          </div>
           <button 
-            className="btn-primary" 
+            className="gtm-sync-btn" 
             onClick={handleSync} 
             disabled={isSyncing}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <RefreshCw size={16} className={isSyncing ? 'spin' : ''} /> 
-            {isSyncing ? 'Syncing...' : 'Sync from LIS'}
+            <RefreshCw size={16} className={isSyncing ? 'spin' : ''} />
+            {isSyncing ? 'Syncing...' : 'Sync now'}
           </button>
         </div>
-      </div>
 
-      <div className="gtm-filters">
-        <div className="gtm-search">
-          <Search size={16} className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Search by code, name or category..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Toolbar */}
+        <div className="gtm-toolbar">
+          <div className="gtm-search-wrapper">
+            <Search size={16} className="gtm-search-icon" />
+            <input 
+              type="text" 
+              placeholder="Search by name or code..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="gtm-search-input"
+            />
+          </div>
+          
+          <div className="gtm-toolbar-right">
+            <span className="gtm-test-count">1786 tests</span>
+            <div className="gtm-select-wrapper">
+              <span className="gtm-select-label">Category:</span>
+              <select className="gtm-select">
+                <option>All categories</option>
+                <option>Out lab</option>
+                <option>Immunology</option>
+                <option>Supply</option>
+                <option>Pathology</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Filter size={16} /> Filter
-        </button>
-      </div>
 
-      <div className="gtm-table-container">
-        <table className="gtm-table">
-          <thead>
-            <tr>
-              <th>Test Code</th>
-              <th>Test Name & Category</th>
-              <th>Unit</th>
-              <th>LIS Mapping</th>
-              <th>Reference Range</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTests.map(test => (
-              <tr key={test.id} style={{ opacity: test.active ? 1 : 0.6 }}>
-                <td>
-                  <span className="gtm-test-code">{test.code}</span>
-                </td>
-                <td>
-                  <div className="gtm-test-name">{test.name}</div>
-                  <span className="gtm-category-badge">{test.category}</span>
-                </td>
-                <td>{test.unit}</td>
-                <td>
-                  <div className="gtm-lis-mapping">
-                    <Database size={14} /> {test.lisCode}
-                  </div>
-                </td>
-                <td>
-                  <div className="gtm-ref-range">{test.refRange}</div>
-                </td>
-                <td>
-                  <div className="gtm-status-cell">
-                    <label className="gtm-toggle">
-                      <input 
-                        type="checkbox" 
-                        checked={test.active}
-                        onChange={() => toggleStatus(test.id)}
-                      />
-                      <span className="gtm-slider"></span>
-                    </label>
-                    <span className={`gtm-status-text ${test.active ? 'gtm-status-active' : 'gtm-status-inactive'}`}>
-                      {test.active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filteredTests.length === 0 && (
+        {/* Table */}
+        <div className="gtm-table-container">
+          <table className="gtm-table">
+            <thead>
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
-                  No tests found matching your criteria.
-                </td>
+                <th style={{ width: '120px' }}>Code</th>
+                <th>Test</th>
+                <th style={{ width: '25%' }}>Category</th>
+                <th style={{ width: '25%' }}>Specimens</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredTests.map((t, idx) => (
+                <tr key={idx}>
+                  <td>{t.code}</td>
+                  <td>{t.test}</td>
+                  <td style={{ color: '#64748b' }}>{t.category}</td>
+                  <td style={{ color: '#64748b' }}>{t.specimens}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="gtm-footer">
+          <div className="gtm-pagination-wrapper">
+            <span className="gtm-rows-text">Rows per page</span>
+            <select className="gtm-rows-select">
+              <option>20</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+            
+            <span className="gtm-page-info">Page 1 of 90</span>
+            
+            <div className="gtm-pagination-controls">
+              <button className="gtm-page-btn" disabled><ChevronsLeft size={16} /></button>
+              <button className="gtm-page-btn" disabled><ChevronLeft size={16} /></button>
+              <button className="gtm-page-btn"><ChevronRight size={16} /></button>
+              <button className="gtm-page-btn"><ChevronsRight size={16} /></button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

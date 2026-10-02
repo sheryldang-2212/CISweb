@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Check, Plus, Edit2, Trash2, X, Package, FileText, Barcode, FlaskConical, ChevronDown } from 'lucide-react';
+import { Search, Check, Plus, Edit2, Trash2, X, Package, FileText, Barcode, FlaskConical, ChevronDown, RotateCcw } from 'lucide-react';
 import { useClinicConfig } from '../context/ClinicConfigContext';
 import './ServicesAndPackages.css';
 
@@ -13,7 +13,21 @@ export default function ServicesAndPackages({ currentRole }: { currentRole?: str
     { id: '4', test: 'Lipid Profile', parameter: 'LDL', unit: 'mg/dL', maleRange: '< 100', femaleRange: '< 100', ageRange: '—', notes: '—' }
   ];
   
-  const [activeTab, setActiveTab] = useState<'tests' | 'packages' | 'reference'>('tests');
+  const [activeTab, setActiveTab] = useState<'tests' | 'packages' | 'reference' | 'sync_history'>('tests');
+
+  const SYNC_HISTORY = [
+    { id: 1, started: '2026-10-01 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '1.5 s', fetched: 1786, error: '' },
+    { id: 2, started: '2026-09-30 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '3.5 s', fetched: 1786, error: '' },
+    { id: 3, started: '2026-09-29 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '3.4 s', fetched: 1786, error: '' },
+    { id: 4, started: '2026-09-28 10:35', trigger: 'Sync now', by: 'platform@admin.test', status: 'Succeeded', duration: '3.6 s', fetched: 1786, error: '' },
+    { id: 5, started: '2026-09-28 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '1.2 s', fetched: 1786, error: '' },
+    { id: 6, started: '2026-09-27 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '3.3 s', fetched: 1786, error: '' },
+    { id: 7, started: '2026-09-26 03:00', trigger: 'Scheduled', by: '—', status: 'Succeeded', duration: '5.4 s', fetched: 1786, error: '' },
+    { id: 8, started: '2026-09-25 17:03', trigger: 'Sync now', by: 'platform@admin.test', status: 'Succeeded', duration: '1.4 s', fetched: 1786, error: '' },
+    { id: 9, started: '2026-09-25 17:02', trigger: 'Sync now', by: 'platform@admin.test', status: 'Succeeded', duration: '4.2 s', fetched: 1786, error: '' },
+    { id: 10, started: '2026-09-25 13:22', trigger: 'Sync now', by: 'platform@admin.test', status: 'Succeeded', duration: '1.6 s', fetched: 1786, error: '' },
+    { id: 11, started: '2026-09-25 11:09', trigger: 'Startup', by: '—', status: 'Succeeded', duration: '6.1 s', fetched: 1786, error: '' },
+  ];
   
   // State for Categories and Tests
   const [activeCategory, setActiveCategory] = useState(categories[0]?.name || '');
@@ -161,20 +175,29 @@ export default function ServicesAndPackages({ currentRole }: { currentRole?: str
         <button 
           className={`sp-tab-btn ${activeTab === 'tests' ? 'active' : ''}`}
           onClick={() => setActiveTab('tests')}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
         >
-          Test Availability
+          <FlaskConical size={14} /> Test Availability
         </button>
         <button 
           className={`sp-tab-btn ${activeTab === 'packages' ? 'active' : ''}`}
           onClick={() => setActiveTab('packages')}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
         >
-          Health Packages
+          <Package size={14} /> Health Packages
         </button>
         <button 
           className={`sp-tab-btn ${activeTab === 'reference' ? 'active' : ''}`}
           onClick={() => setActiveTab('reference')}
         >
           Reference Ranges
+        </button>
+        <button 
+          className={`sp-tab-btn ${activeTab === 'sync_history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sync_history')}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <RotateCcw size={14} /> Sync History
         </button>
       </div>
 
@@ -459,6 +482,54 @@ export default function ServicesAndPackages({ currentRole }: { currentRole?: str
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* --- TAB: SYNC HISTORY --- */}
+        {activeTab === 'sync_history' && (
+          <div className="tab-pane fadeIn">
+            <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#1e293b' }}>Catalogue sync history</h3>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>One row per sync attempt: the nightly run, Sync now, and the first sync after a fresh deployment.</p>
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>Last 20 runs</div>
+              </div>
+              
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                  <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <tr>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Started</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Trigger</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>By</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Status</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Duration</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Fetched</th>
+                      <th style={{ padding: '12px 16px', fontWeight: 500, color: '#64748b' }}>Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SYNC_HISTORY.map(row => (
+                      <tr key={row.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px 16px', color: '#334155' }}>{row.started}</td>
+                        <td style={{ padding: '12px 16px', color: '#64748b' }}>{row.trigger}</td>
+                        <td style={{ padding: '12px 16px', color: '#64748b' }}>{row.by}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 500 }}>
+                            {row.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', color: '#64748b' }}>{row.duration}</td>
+                        <td style={{ padding: '12px 16px', color: '#334155' }}>{row.fetched}</td>
+                        <td style={{ padding: '12px 16px', color: '#64748b' }}>{row.error}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

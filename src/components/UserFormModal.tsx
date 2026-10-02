@@ -210,8 +210,6 @@ export default function UserFormModal({ user, onClose, initialTab = 'profile' }:
                                 <tr>
                                   <th style={{ textAlign: 'left', padding: '8px 16px', color: '#6b7280', fontSize: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>Permission</th>
                                   <th style={{ textAlign: 'left', padding: '8px 16px', color: '#6b7280', fontSize: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>Code</th>
-                                  <th style={{ textAlign: 'center', padding: '8px 16px', color: '#6b7280', fontSize: '0.75rem', borderBottom: '1px solid #e5e7eb', width: '60px' }}>Access</th>
-                                  <th style={{ textAlign: 'left', padding: '8px 16px', color: '#6b7280', fontSize: '0.75rem', borderBottom: '1px solid #e5e7eb', width: '100px' }}>Record Scope</th>
                                   <th style={{ textAlign: 'left', padding: '8px 16px', color: '#6b7280', fontSize: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>Dependency</th>
                                 </tr>
                               </thead>
@@ -226,7 +224,7 @@ export default function UserFormModal({ user, onClose, initialTab = 'profile' }:
                                   return (
                                     <React.Fragment key={module.id}>
                                       <tr className="um-perm-cat-row">
-                                        <td className="um-perm-cat-cell" colSpan={5}>
+                                        <td className="um-perm-cat-cell" colSpan={3}>
                                           <input type="checkbox" className="um-perm-checkbox" defaultChecked />
                                           <ModIcon size={18} className="um-perm-cat-icon" />
                                           <span className="um-perm-cat-title">{module.name}</span>
@@ -235,17 +233,11 @@ export default function UserFormModal({ user, onClose, initialTab = 'profile' }:
                                       </tr>
                                       {availablePerms.map(perm => (
                                         <tr key={perm.code} className="um-perm-detail-row">
-                                          <td className="um-perm-detail-cell um-perm-name-cell">{perm.name}</td>
+                                          <td className="um-perm-detail-cell um-perm-name-cell">
+                                            <input type="checkbox" className="um-perm-checkbox" defaultChecked style={{ marginRight: '8px' }} />
+                                            {perm.name}
+                                          </td>
                                           <td className="um-perm-detail-cell um-perm-code-cell">{perm.code}</td>
-                                          <td className="um-perm-detail-cell" style={{ textAlign: 'center' }}>
-                                            <input type="checkbox" className="um-perm-checkbox" defaultChecked />
-                                          </td>
-                                          <td className="um-perm-detail-cell">
-                                            <select className="um-form-select" style={{ padding: '4px', fontSize: '0.75rem', height: 'auto', borderRadius: '4px', minWidth: '80px' }}>
-                                              <option>All</option>
-                                              <option>My only</option>
-                                            </select>
-                                          </td>
                                           <td className="um-perm-detail-cell">
                                             {perm.dependency ? (
                                               <span className="um-perm-rule-badge">{perm.dependency}</span>

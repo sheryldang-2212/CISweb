@@ -1,221 +1,261 @@
-.audit-logs-container {
+.al-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
-  animation: fadeIn 0.3s ease-in-out;
+  padding: 24px;
 }
 
 .al-header {
   margin-bottom: 24px;
 }
 
-.al-header h1 {
+.al-title {
+  margin: 0 0 8px 0;
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-main);
-  margin: 0 0 8px 0;
+  color: #1e293b;
 }
 
-.al-header p {
-  color: var(--text-muted);
+.al-subtitle {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
+  color: #64748b;
 }
 
-.al-filters {
+.al-filters-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 24px;
   align-items: center;
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
-.al-search {
+.al-search-box {
   flex: 1;
   position: relative;
+  min-width: 250px;
 }
 
 .al-search-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: #94a3b8;
 }
 
-.al-search input {
+.al-search-box input {
   width: 100%;
-  padding: 10px 14px 10px 40px;
+  padding: 10px 12px 10px 36px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
   outline: none;
+  background: white;
+  transition: border-color 0.2s;
 }
 
-.al-search input:focus {
-  border-color: var(--primary);
+.al-search-box input:focus {
+  border-color: #3b82f6;
 }
 
-.al-filter-select {
-  padding: 10px 16px;
+.al-select {
+  padding: 10px 32px 10px 12px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
-  background-color: white;
-  color: var(--text-main);
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance: none;
+  color: #334155;
   outline: none;
   cursor: pointer;
 }
 
-.al-export-btn {
+.al-btn-export {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background-color: white;
-  border: 1px solid #e2e8f0;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-main);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.al-export-btn:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+.al-btn-export:hover {
+  background-color: #2563eb;
 }
 
-.al-table-card {
+.al-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.al-kpi-card {
   background: white;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.al-kpi-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.al-kpi-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.al-kpi-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 2px;
+}
+
+.al-table-container {
+  flex: 1;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .al-table {
   width: 100%;
   border-collapse: collapse;
+  text-align: left;
 }
 
 .al-table th {
-  text-align: left;
-  padding: 16px 24px;
+  padding: 14px 20px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background-color: #f8fafc;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .al-table td {
-  padding: 16px 24px;
+  padding: 14px 20px;
   font-size: 14px;
-  color: var(--text-main);
+  color: #334155;
   border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-.al-table tbody tr:hover {
+.al-table tbody tr:hover td {
   background-color: #f8fafc;
 }
 
-.al-user-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.al-cell-time {
+  font-family: monospace;
+  color: #64748b;
+  font-size: 13px;
 }
 
-.al-user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: var(--primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.al-cell-bold {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.al-cell-muted {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.al-cell-mono {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.al-badge-gray {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.al-status-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
 }
 
-.al-user-name {
-  font-weight: 500;
+.al-status-badge.success {
+  background: #dcfce7;
+  color: #166534;
 }
 
-.al-user-role {
-  font-size: 12px;
-  color: var(--text-muted);
+.al-status-badge.failure {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-.al-event-cell {
-  font-weight: 500;
-}
-
-.al-module-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  background-color: #f1f5f9;
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.al-status {
+.al-btn-icon {
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
+}
+
+.al-btn-icon:hover {
+  background: #f1f5f9;
+  color: #3b82f6;
+}
+
+.al-empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
   font-weight: 500;
-}
-
-.al-status.success {
-  color: var(--success);
-}
-
-.al-status.failure {
-  color: var(--danger);
-}
-
-.al-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.al-status.success .al-status-dot {
-  background-color: var(--success);
-}
-
-.al-status.failure .al-status-dot {
-  background-color: var(--danger);
-}
-
-.al-timestamp {
-  font-size: 13px;
-  color: var(--text-secondary);
 }
 
 .al-pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  background-color: white;
+  padding: 16px 20px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
 }
 
-.al-page-info {
+.al-page-text {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 .al-page-controls {
@@ -224,20 +264,144 @@
 }
 
 .al-page-btn {
-  padding: 6px 12px;
-  border: 1px solid #e2e8f0;
   background: white;
+  border: 1px solid #e2e8f0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
-  font-size: 13px;
-  color: var(--text-main);
+  color: #64748b;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .al-page-btn:hover:not(:disabled) {
-  background-color: #f8fafc;
+  background: #f8fafc;
+  color: #1e293b;
+  border-color: #cbd5e1;
 }
 
 .al-page-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+/* Modal */
+.al-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.al-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  animation: slideUp 0.2s ease-out forwards;
+}
+
+.al-modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.al-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.al-modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.al-modal-close:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.al-modal-body {
+  padding: 24px;
+}
+
+.al-detail-group {
+  margin-bottom: 20px;
+}
+
+.al-detail-group label, .al-detail-grid label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.al-detail-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.al-detail-mono {
+  font-family: monospace;
+  font-size: 13px;
+  color: #334155;
+}
+
+.al-detail-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.al-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.al-btn-secondary {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.al-btn-secondary:hover {
+  background: #f8fafc;
 }
