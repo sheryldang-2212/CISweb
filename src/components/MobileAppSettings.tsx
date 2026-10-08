@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { Smartphone, LayoutDashboard, Activity, FileQuestion, Bell, LifeBuoy, ShieldCheck, Eye, Save, Plus, Trash2, Edit2, CheckCircle2, ChevronRight, Globe, AlertTriangle } from 'lucide-react';
+import { Smartphone, LayoutDashboard, Activity, FileQuestion, Bell, LifeBuoy, ShieldCheck, Eye, Save, Plus, Trash2, Edit2, CheckCircle2, ChevronRight, Globe, AlertTriangle, Phone, Search } from 'lucide-react';
 import './Settings.css';
 
 export default function MobileAppSettings() {
-  const [activeTab, setActiveTab] = useState('Dashboard Display');
+  const [activeTab, setActiveTab] = useState('Questionnaire');
   const [configStatus, setConfigStatus] = useState('Draft');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState('Not saved yet');
 
   const tabs = [
-    { id: 'Dashboard Display', icon: LayoutDashboard },
-    { id: 'Test Metrics', icon: Activity },
+    { id: 'Phone code', icon: Phone },
     { id: 'Questionnaire', icon: FileQuestion },
     { id: 'Notifications', icon: Bell },
     { id: 'Help & Support', icon: LifeBuoy },
-    { id: 'Consent Content', icon: ShieldCheck },
-    { id: 'Preview & Publish', icon: Eye }
+    { id: 'Consent Content', icon: ShieldCheck }
   ];
 
   const handleSaveDraft = () => {
@@ -38,17 +36,6 @@ export default function MobileAppSettings() {
     }
   };
 
-  // Mock data for Dashboard Display
-  const [categories] = useState([
-    { id: 'c1', nameEn: 'Metabolic', nameTh: 'เมตาบอลิก', order: 1, status: 'Active', metrics: 'Glucose, HbA1c, Insulin, Lipid Profile' },
-    { id: 'c2', nameEn: 'Cardio', nameTh: 'คาร์ดิโอ', order: 2, status: 'Active', metrics: 'hs-CRP, Homocysteine' },
-  ]);
-
-  // Mock data for Test Metrics
-  const [metrics] = useState([
-    { id: 'm1', code: 'LDL', nameEn: 'LDL Cholesterol', nameTh: 'LDL โคเลสเตอรอล', category: 'Cardio / Metabolic', unit: 'mg/dL', refLabel: 'Normal / High / Critical', order: 3, status: 'Active' },
-  ]);
-
   // Mock data for Questionnaires
   const [questions] = useState([
     { id: 'q1', qId: 'Q001', en: 'Do you smoke?', th: 'คุณสูบบุหรี่หรือไม่?', type: 'Single choice', required: 'Yes', section: 'Lifestyle', status: 'Active' },
@@ -61,8 +48,8 @@ export default function MobileAppSettings() {
   ]);
 
   return (
-    <div className="settings-container" style={{ border: '1px solid var(--border-color)', borderRadius: '12px', background: 'white', minHeight: '600px' }}>
-      <div className="settings-sidebar" style={{ width: '250px' }}>
+    <div className="settings-container" style={{ border: 'none', background: 'transparent', height: '100%', overflow: 'hidden' }}>
+      <div className="settings-sidebar premium-sidebar" style={{ width: '260px' }}>
         <h2 className="settings-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', marginBottom: '8px' }}>
           <Smartphone size={20} style={{ color: 'var(--primary)' }} /> Mobile App Config
         </h2>
@@ -83,7 +70,7 @@ export default function MobileAppSettings() {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              className={`settings-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+              className={`premium-nav-item ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
               <tab.icon size={18} className="settings-icon" />
@@ -98,128 +85,94 @@ export default function MobileAppSettings() {
           <div>
             <h3 className="section-header">{activeTab}</h3>
             <p className="section-desc" style={{ marginBottom: 0 }}>
-              {activeTab === 'Dashboard Display' && 'Configure health groups and mapping for the mobile dashboard.'}
-              {activeTab === 'Test Metrics' && 'Configure how specific lab metrics are displayed to patients.'}
+              {activeTab === 'Phone code' && 'Select allowed country codes for phone number input on the mobile app.'}
               {activeTab === 'Questionnaire' && 'Manage questions asked during patient registration and profile updates.'}
               {activeTab === 'Notifications' && 'Configure push notification and in-app message content by event.'}
               {activeTab === 'Help & Support' && 'Manage contact information and frequently asked questions.'}
               {activeTab === 'Consent Content' && 'Configure text for T&C, Privacy Policy, and Data Sharing explanations.'}
-              {activeTab === 'Preview & Publish' && 'Review changes and publish to the live patient application.'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
+
+            {activeTab === 'Phone code' && (
+              <div className="search-container" style={{ position: 'relative', width: '240px', display: 'flex', alignItems: 'center' }}>
+                <Search size={16} style={{ position: 'absolute', left: '12px', color: '#94a3b8' }} />
+                <input type="text" placeholder="Search country or code..." style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px' }} />
+              </div>
+            )}
             <button className="btn-secondary" onClick={handleSaveDraft} disabled={isSaving}>
               <Save size={16} style={{ marginRight: '8px' }} /> 
               {isSaving ? 'Saving...' : 'Save Draft'}
             </button>
-            {activeTab !== 'Preview & Publish' && (
-              <button className="btn-primary" onClick={() => setActiveTab('Preview & Publish')}>
-                Review & Publish <ChevronRight size={16} style={{ marginLeft: '4px' }} />
-              </button>
-            )}
+
           </div>
         </div>
 
-        {/* Dashboard Display */}
-        {activeTab === 'Dashboard Display' && (
+        
+        {/* Phone Code */}
+        {activeTab === 'Phone code' && (
           <div className="fadeIn">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <button className="btn-primary-small"><Plus size={14} style={{ marginRight: '6px' }} /> Add Category</button>
-            </div>
-            
-            <div className="table-container" style={{ marginBottom: '24px' }}>
+            <div className="table-container premium-table-wrapper">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Category EN</th>
-                    <th>Category TH</th>
-                    <th>Order</th>
-                    <th>Linked Metrics</th>
+                    <th style={{ width: '40px', textAlign: 'center' }}>
+                      <input type="checkbox" defaultChecked />
+                    </th>
+                    <th>Country Name</th>
+                    <th>Country Code</th>
                     <th>Status</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((cat) => (
-                    <tr key={cat.id}>
-                      <td style={{ fontWeight: 600 }}>{cat.nameEn}</td>
-                      <td>{cat.nameTh}</td>
-                      <td>{cat.order}</td>
-                      <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-secondary)' }} title={cat.metrics}>{cat.metrics}</td>
-                      <td>
-                        <span className="status-pill status-ready">{cat.status}</span>
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button className="icon-btn" title="Edit"><Edit2 size={16} /></button>
-                        <button className="icon-btn" title="Delete" style={{ color: 'var(--danger)' }}><Trash2 size={16} /></button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div style={{ padding: '16px', backgroundColor: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <AlertTriangle size={20} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-main)', lineHeight: 1.5 }}>
-                <strong>Note:</strong> Lab order workflows and clinical logic are managed in the central clinical configuration module to maintain strict governance. This screen only controls the presentation layer on the patient app.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Test Metrics */}
-        {activeTab === 'Test Metrics' && (
-          <div className="fadeIn">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <button className="btn-primary-small"><Plus size={14} style={{ marginRight: '6px' }} /> Add Metric Config</button>
-            </div>
-            
-            <div className="table-container" style={{ marginBottom: '16px' }}>
-              <table className="data-table">
-                <thead>
                   <tr>
-                    <th>Metric Code</th>
-                    <th>Display EN / TH</th>
-                    <th>Category</th>
-                    <th>Reference Label</th>
-                    <th>Status</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" defaultChecked /></td>
+                    <td style={{ fontWeight: 600 }}>Vietnam</td>
+                    <td>+84</td>
+                    <td><span className="status-pill status-ready">Active</span></td>
                   </tr>
-                </thead>
-                <tbody>
-                  {metrics.map((metric) => (
-                    <tr key={metric.id}>
-                      <td style={{ fontFamily: 'monospace', color: 'var(--text-secondary)' }}>{metric.code}</td>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{metric.nameEn}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{metric.nameTh}</div>
-                      </td>
-                      <td>{metric.category}</td>
-                      <td style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{metric.refLabel}</td>
-                      <td><span className="status-pill status-ready">{metric.status}</span></td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button className="icon-btn" title="Edit"><Edit2 size={16} /></button>
-                      </td>
-                    </tr>
-                  ))}
+                  <tr>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" defaultChecked /></td>
+                    <td style={{ fontWeight: 600 }}>United States</td>
+                    <td>+1</td>
+                    <td><span className="status-pill status-ready">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" defaultChecked /></td>
+                    <td style={{ fontWeight: 600 }}>Thailand</td>
+                    <td>+66</td>
+                    <td><span className="status-pill status-ready">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" defaultChecked /></td>
+                    <td style={{ fontWeight: 600 }}>Singapore</td>
+                    <td>+65</td>
+                    <td><span className="status-pill status-ready">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" /></td>
+                    <td style={{ fontWeight: 600 }}>United Kingdom</td>
+                    <td>+44</td>
+                    <td><span className="status-pill status-pending" style={{ color: '#64748b', background: '#f1f5f9' }}>Inactive</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" /></td>
+                    <td style={{ fontWeight: 600 }}>Australia</td>
+                    <td>+61</td>
+                    <td><span className="status-pill status-pending" style={{ color: '#64748b', background: '#f1f5f9' }}>Inactive</span></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-              <strong>BA Note:</strong> Actual reference ranges are pulled securely from the LIS/Clinical configuration. Mobile App Config strictly manages visual labeling and translations.
-            </p>
           </div>
         )}
 
         {/* Questionnaire */}
         {activeTab === 'Questionnaire' && (
           <div className="fadeIn">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <button className="btn-primary-small"><Plus size={14} style={{ marginRight: '6px' }} /> Add Question</button>
-            </div>
 
-            <div style={{ padding: '16px', backgroundColor: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '24px' }}>
+
+            <div className="premium-alert warning" style={{ marginBottom: '24px' }}>
               <AlertTriangle size={20} style={{ color: 'var(--warning)', flexShrink: 0 }} />
               <div>
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>Data Retention Rule Active</h4>
@@ -229,7 +182,7 @@ export default function MobileAppSettings() {
               </div>
             </div>
             
-            <div className="table-container">
+            <div className="table-container premium-table-wrapper">
               <table className="data-table">
                 <thead>
                   <tr>
@@ -375,54 +328,6 @@ export default function MobileAppSettings() {
           </div>
         )}
 
-        {/* Preview & Publish */}
-        {activeTab === 'Preview & Publish' && (
-          <div className="fadeIn" style={{ display: 'flex', justifyContent: 'center', paddingTop: '40px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '600px', textAlign: 'center' }}>
-              <div style={{ width: '64px', height: '64px', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-                <Globe size={32} />
-              </div>
-              <h2 style={{ margin: '0 0 8px 0', fontSize: '24px', fontWeight: 700 }}>Publish Configuration</h2>
-              <p style={{ margin: '0 0 32px 0', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                You are about to publish the current Draft configuration to the mobile app environment. This will update the patient experience immediately.
-              </p>
-              
-              <div style={{ width: '100%', backgroundColor: '#fafafa', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginBottom: '32px', textAlign: 'left' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>
-                  Changes in this draft ({lastSaved})
-                </h4>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-main)' }}>
-                    <CheckCircle2 size={16} style={{ color: 'var(--success)' }} /> Updated "Help & Support" FAQs
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-main)' }}>
-                    <CheckCircle2 size={16} style={{ color: 'var(--success)' }} /> Modified display order in "Dashboard Display"
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-main)' }}>
-                    <CheckCircle2 size={16} style={{ color: 'var(--success)' }} /> Drafted new Questionnaire: "Lifestyle Survey"
-                  </li>
-                </ul>
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
-                <button className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
-                  Preview on Mobile Simulator
-                </button>
-                <button 
-                  className="btn-primary" 
-                  style={{ flex: 1, justifyContent: 'center', backgroundColor: configStatus === 'Published' ? 'var(--success)' : 'var(--primary)' }}
-                  onClick={handlePublish}
-                  disabled={configStatus === 'Published'}
-                >
-                  {configStatus === 'Published' ? 'Already Published' : 'Publish to Mobile App'}
-                </button>
-              </div>
-              <p style={{ margin: '24px 0 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>
-                All changes will be permanently recorded in the system audit logs under your account.
-              </p>
-            </div>
-          </div>
-        )}
 
       </div>
     </div>

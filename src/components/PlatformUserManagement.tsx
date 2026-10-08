@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MoreVertical, UserPlus, Settings, Eye, Edit, Key, PowerOff, Trash2 } from 'lucide-react';
+import InviteStaffDrawer from './InviteStaffDrawer';
 import './PlatformUserManagement.css';
 
 const MOCK_PLATFORM_USERS = [
@@ -15,9 +16,43 @@ const MOCK_PLATFORM_USERS = [
   { id: '10', name: 'Ploy Sukjai', phone: '+66 840-2770', email: 'ploy.sukjai@innotechlab.net', role: 'Doctor', clinics: 'Chiang Rai Wellness', extraClinics: null, status: 'Active', lastLoginDate: 'Feb 23, 2026', lastLoginTime: '08:50' },
 ];
 
+const MOCK_SUPER_ADMINS = [
+  { id: 'sa1', name: 'Sarah Chen', phone: '+66 891-1234', email: 'sarah.chen@healthhub.com', role: 'Super Admin', clinics: 'System Wide', extraClinics: null, status: 'Active', lastLoginDate: 'Oct 8, 2026', lastLoginTime: '08:15' },
+  { id: 'sa2', name: 'John Doe', phone: '+66 892-5678', email: 'john.doe@healthhub.com', role: 'Super Admin', clinics: 'System Wide', extraClinics: null, status: 'Active', lastLoginDate: 'Oct 7, 2026', lastLoginTime: '14:22' },
+  { id: 'sa3', name: 'Alice Smith', phone: '+66 893-9012', email: 'alice.smith@healthhub.com', role: 'System Auditor', clinics: 'System Wide', extraClinics: null, status: 'Inactive', lastLoginDate: 'Sep 15, 2026', lastLoginTime: '09:45' }
+];
+
 export default function PlatformUserManagement() {
+
   const [searchTerm, setSearchTerm] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'Clinic Users' | 'Platform Super Admin'>('Clinic Users');
+  const [showInviteDrawer, setShowInviteDrawer] = useState(false);
+  const [clinicUsers, setClinicUsers] = useState(MOCK_PLATFORM_USERS);
+  const [superAdmins, setSuperAdmins] = useState(MOCK_SUPER_ADMINS);
+
+  const handleInviteStaff = (invitedUsers: any[]) => {
+    const newUsers = invitedUsers.map(u => ({
+      id: `inv-${Date.now()}-${Math.random()}`,
+      name: u.name || '-',
+      phone: u.phone || '-',
+      email: u.email,
+      role: u.role,
+      clinics: u.clinic || 'System Wide',
+      extraClinics: null,
+      status: 'Pending Invitation',
+      lastLoginDate: '-',
+      lastLoginTime: '-'
+    }));
+    
+    if (activeTab === 'Clinic Users') {
+      setClinicUsers([...newUsers, ...clinicUsers]);
+    } else {
+      setSuperAdmins([...newUsers, ...superAdmins]);
+    }
+    setShowInviteDrawer(false);
+  };
+
 
   // Close menu when clicking outside
   React.useEffect(() => {
@@ -28,36 +63,71 @@ export default function PlatformUserManagement() {
 
   return (
     <div className="pum-container fadeIn">
-      <div className="pum-header">
+      <div className="pum-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
         <h1 className="pum-title">User Management</h1>
         <div className="pum-actions">
           <button className="pum-btn-secondary">
             <Settings size={16} /> Bulk Actions
           </button>
-          <button className="pum-btn-primary">
+          <button className="pum-btn-primary" onClick={() => setShowInviteDrawer(true)}>
             <UserPlus size={16} /> Add User
           </button>
         </div>
       </div>
 
-      <div className="pum-kpi-grid">
-        <div className="pum-kpi-card">
-          <div className="pum-kpi-value">6</div>
-          <div className="pum-kpi-label">Clinic Admin</div>
-        </div>
-        <div className="pum-kpi-card">
-          <div className="pum-kpi-value">12</div>
-          <div className="pum-kpi-label">Doctor</div>
-        </div>
-        <div className="pum-kpi-card">
-          <div className="pum-kpi-value">6</div>
-          <div className="pum-kpi-label">Technician</div>
-        </div>
-        <div className="pum-kpi-card">
-          <div className="pum-kpi-value">5</div>
-          <div className="pum-kpi-label">Receptionist</div>
-        </div>
+      <div style={{ display: 'flex', gap: '24px', padding: '0 24px', borderBottom: '1px solid #e5e7eb', marginBottom: '24px' }}>
+        <button 
+          onClick={() => setActiveTab('Clinic Users')}
+          style={{ 
+            padding: '12px 0', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'Clinic Users' ? '2px solid var(--primary)' : '2px solid transparent',
+            color: activeTab === 'Clinic Users' ? 'var(--primary)' : '#6b7280',
+            fontWeight: activeTab === 'Clinic Users' ? 600 : 500,
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Clinic Users
+        </button>
+        <button 
+          onClick={() => setActiveTab('Platform Super Admin')}
+          style={{ 
+            padding: '12px 0', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'Platform Super Admin' ? '2px solid var(--primary)' : '2px solid transparent',
+            color: activeTab === 'Platform Super Admin' ? 'var(--primary)' : '#6b7280',
+            fontWeight: activeTab === 'Platform Super Admin' ? 600 : 500,
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Platform Super Admin
+        </button>
       </div>
+
+      {activeTab === 'Clinic Users' && (
+        <div className="pum-kpi-grid">
+          <div className="pum-kpi-card">
+            <div className="pum-kpi-value">6</div>
+            <div className="pum-kpi-label">Clinic Admin</div>
+          </div>
+          <div className="pum-kpi-card">
+            <div className="pum-kpi-value">12</div>
+            <div className="pum-kpi-label">Doctor</div>
+          </div>
+          <div className="pum-kpi-card">
+            <div className="pum-kpi-value">6</div>
+            <div className="pum-kpi-label">Technician</div>
+          </div>
+          <div className="pum-kpi-card">
+            <div className="pum-kpi-value">5</div>
+            <div className="pum-kpi-label">Receptionist</div>
+          </div>
+        </div>
+      )}
 
       <div className="pum-filters-bar">
         <div className="pum-search-container">
@@ -71,8 +141,12 @@ export default function PlatformUserManagement() {
           />
         </div>
         <div className="pum-dropdowns">
-          <select className="pum-select"><option>Role: All</option></select>
-          <select className="pum-select"><option>Clinic: All</option></select>
+          {activeTab === 'Clinic Users' && (
+            <>
+              <select className="pum-select"><option>Role: All</option></select>
+              <select className="pum-select"><option>Clinic: All</option></select>
+            </>
+          )}
           <select className="pum-select"><option>Status: All</option></select>
           <button className="pum-reset-btn">Reset</button>
         </div>
@@ -93,7 +167,7 @@ export default function PlatformUserManagement() {
             </tr>
           </thead>
           <tbody>
-            {MOCK_PLATFORM_USERS.map((user) => (
+            {(activeTab === 'Clinic Users' ? clinicUsers : superAdmins).map((user) => (
               <tr key={user.id}>
                 <td><input type="checkbox" /></td>
                 <td>
@@ -102,7 +176,7 @@ export default function PlatformUserManagement() {
                 </td>
                 <td className="pum-email">{user.email}</td>
                 <td>
-                  <span className={`pum-role-badge ${user.role === 'Clinic Admin' ? 'role-admin' : 'role-doctor'}`}>
+                  <span className={`pum-role-badge ${user.role === 'Clinic Admin' ? 'role-admin' : user.role === 'Doctor' ? 'role-doctor' : 'role-admin'}`} style={{ backgroundColor: user.role === 'Super Admin' ? '#f3e8ff' : undefined, color: user.role === 'Super Admin' ? '#7e22ce' : undefined, borderColor: user.role === 'Super Admin' ? '#e9d5ff' : undefined }}>
                     {user.role}
                   </span>
                 </td>
@@ -156,16 +230,30 @@ export default function PlatformUserManagement() {
         </table>
         
         <div className="pum-pagination">
-          <span>Showing 1-10 of 29 users</span>
+          <span>Showing 1-{activeTab === 'Clinic Users' ? '10 of 29' : '3 of 3'} users</span>
           <div className="pum-pages">
             <button className="pum-page-btn">&lt;</button>
             <button className="pum-page-btn active">1</button>
-            <button className="pum-page-btn">2</button>
-            <button className="pum-page-btn">3</button>
+            {activeTab === 'Clinic Users' && (
+              <>
+                <button className="pum-page-btn">2</button>
+                <button className="pum-page-btn">3</button>
+              </>
+            )}
             <button className="pum-page-btn">&gt;</button>
           </div>
         </div>
       </div>
+
+      {showInviteDrawer && (
+        <InviteStaffDrawer
+          onClose={() => setShowInviteDrawer(false)}
+          currentRole="Platform Admin"
+          existingUsers={activeTab === 'Clinic Users' ? clinicUsers : superAdmins}
+          onInvite={handleInviteStaff}
+        />
+      )}
     </div>
   );
 }
+

@@ -30,6 +30,7 @@ export default function PatientDetail({ patient, onEdit, onBack, currentRole }: 
   const [openAccordions, setOpenAccordions] = useState<string[]>(['general_health']);
   const [viewingLabOrder, setViewingLabOrder] = useState<any>(null);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [localPatient, setLocalPatient] = useState(patient);
 
   const toggleAccordion = (section: string) => {
@@ -40,13 +41,31 @@ export default function PatientDetail({ patient, onEdit, onBack, currentRole }: 
 
   if (!localPatient) return null;
 
+  const handleOpenVerifyModal = () => {
+    // Check if 5 fields are present
+    const hasNationalId = localPatient.nationalId || localPatient.idNumber;
+    const hasName = (localPatient.firstName && localPatient.lastName) || (localPatient.name && localPatient.name.trim().includes(' '));
+    const hasDob = localPatient.dob;
+    const hasGender = localPatient.gender;
+
+    if (!hasNationalId || !hasName || !hasDob || !hasGender) {
+      alert("Missing required identity information. Please edit the patient profile to complete National ID, First/Last Name, Date of Birth, and Gender before verifying.");
+      return;
+    }
+    setIsVerifyModalOpen(true);
+  };
+
   const handleVerify = (verificationDetails: any) => {
-    setLocalPatient({
-      ...localPatient,
-      identityVerification: 'Verified',
-      ...verificationDetails
-    });
-    setIsVerifyModalOpen(false);
+    setIsVerifying(true);
+    setTimeout(() => {
+      setLocalPatient({
+        ...localPatient,
+        identityVerification: 'Verified',
+        ...verificationDetails
+      });
+      setIsVerifying(false);
+      setIsVerifyModalOpen(false);
+    }, 1500);
   };
 
   if (viewingLabOrder) {
@@ -245,7 +264,7 @@ export default function PatientDetail({ patient, onEdit, onBack, currentRole }: 
                         <p className="ivb-desc">This patient has not been verified at the clinic. Please review the patient's original National ID or Passport.</p>
                       </div>
                     </div>
-                    <button className="btn-primary btn-sm" onClick={() => setIsVerifyModalOpen(true)}>
+                    <button className="btn-primary btn-sm" onClick={handleOpenVerifyModal}>
                       Verify Identity
                     </button>
                   </div>
@@ -253,7 +272,7 @@ export default function PatientDetail({ patient, onEdit, onBack, currentRole }: 
                   <div className="identity-verification-success">
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <h4 className="ivb-title-success">Identity Verification</h4>
-                      <p className="ivb-desc-success">Verified by <strong>Brady Hampson</strong> at <strong>10 Aug 2026, 09:41</strong></p>
+                      <p className="ivb-desc-success">Verified by <strong>{localPatient.verifiedBy}</strong> at <strong>{localPatient.verifiedAt}</strong></p>
                     </div>
                     <span className="badge-verified">Verified</span>
                   </div>
@@ -457,6 +476,7 @@ export default function PatientDetail({ patient, onEdit, onBack, currentRole }: 
           patient={localPatient}
           onClose={() => setIsVerifyModalOpen(false)}
           onVerify={handleVerify}
+          isLoading={isVerifying}
         />
       )}
     </div>

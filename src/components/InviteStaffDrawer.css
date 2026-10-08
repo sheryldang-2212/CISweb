@@ -7,23 +7,29 @@
   background-color: rgba(15, 23, 42, 0.4);
   z-index: 100;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
   animation: fadeIn 0.2s ease-out;
 }
 
 .isd-drawer {
-  width: 600px;
+  width: 800px;
+  max-width: 100%;
   background-color: white;
-  height: 100%;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  height: 700px;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  animation: slideInRight 0.3s ease-out;
+  animation: fadeIn 0.2s ease-out;
+  overflow: hidden;
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .isd-header {
@@ -133,7 +139,7 @@
   color: #94a3b8;
 }
 
-.isd-input-wrap input,
+.isd-input-wrap input:not([type="checkbox"]),
 .isd-input-wrap select {
   width: 100%;
   padding: 10px 12px 10px 36px;
@@ -144,13 +150,13 @@
   background-color: white;
 }
 
-.isd-input-wrap input:focus,
+.isd-input-wrap input:not([type="checkbox"]):focus,
 .isd-input-wrap select:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-.isd-input-wrap input.isd-disabled {
+.isd-input-wrap input:not([type="checkbox"]).isd-disabled {
   background-color: #f8fafc;
   color: #64748b;
   cursor: not-allowed;

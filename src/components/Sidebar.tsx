@@ -1,4 +1,4 @@
-import { LayoutGrid, Users, FlaskConical, PanelLeftClose, Settings, Shield, Lock, Box, Activity, FileKey, Database, BarChart2 } from 'lucide-react';
+import { LayoutGrid, Users, FlaskConical, PanelLeftClose, Settings, Shield, Lock, Box, Activity, FileKey, Database, BarChart2, Bell } from 'lucide-react';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -36,8 +36,7 @@ const getNavGroups = (role: string) => {
         groupName: 'CONFIGURATION',
         items: [
           { name: 'Platform Settings', icon: Settings },
-          { name: 'Global Test Master', icon: Database },
-          { name: 'Roles & Permissions', icon: Shield }
+          { name: 'Global Test Master', icon: Database }
         ]
       },
       {

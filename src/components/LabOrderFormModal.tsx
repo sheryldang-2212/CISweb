@@ -398,7 +398,7 @@ export default function LabOrderFormModal({ isOpen, onClose, mode, initialData, 
                   setTimeout(() => window.dispatchEvent(new CustomEvent('navigate-to-patient', { detail: selectedPatientData.id })), 100);
                 }}
               >
-                Go to Patient Details
+                Go to Verify Identity
               </button>
               <button 
                 type="button"

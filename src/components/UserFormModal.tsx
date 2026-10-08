@@ -114,27 +114,27 @@ export default function UserFormModal({ user, onClose, initialTab = 'profile' }:
                     <div className="um-form-group">
                       <label>First Name</label>
                       <div className="um-input-wrapper">
-                        <User size={16} className="um-input-icon" />
-                        <input type="text" className="um-form-input with-icon" defaultValue={user?.name ? user.name.split(' ')[0] : "Ananda"} />
+                        <User size={16} className="um-input-icon" style={{ color: '#9ca3af' }} />
+                        <input type="text" className="um-form-input with-icon" defaultValue={user?.name ? user.name.split(' ')[0] : "Ananda"} disabled style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }} />
                       </div>
                     </div>
                     <div className="um-form-group">
                       <label>Last Name</label>
                       <div className="um-input-wrapper">
-                        <User size={16} className="um-input-icon" />
-                        <input type="text" className="um-form-input with-icon" defaultValue={user?.name ? user.name.split(' ').slice(1).join(' ') : "Meesuk"} />
+                        <User size={16} className="um-input-icon" style={{ color: '#9ca3af' }} />
+                        <input type="text" className="um-form-input with-icon" defaultValue={user?.name ? user.name.split(' ').slice(1).join(' ') : "Meesuk"} disabled style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }} />
                       </div>
                     </div>
                     <div className="um-form-group">
                       <label>Date of Birth</label>
                       <div className="um-input-wrapper">
-                        <Calendar size={16} className="um-input-icon" />
-                        <input type="date" className="um-form-input with-icon" defaultValue="1990-05-15" />
+                        <Calendar size={16} className="um-input-icon" style={{ color: '#9ca3af' }} />
+                        <input type="date" className="um-form-input with-icon" defaultValue="1990-05-15" disabled style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }} />
                       </div>
                     </div>
                     <div className="um-form-group">
                       <label>Gender</label>
-                      <select className="um-form-select">
+                      <select className="um-form-select" disabled style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }}>
                         <option>Male</option>
                         <option>Female</option>
                         <option>Other</option>
@@ -147,8 +147,8 @@ export default function UserFormModal({ user, onClose, initialTab = 'profile' }:
                     <div className="um-form-group">
                       <label>Email Address</label>
                       <div className="um-input-wrapper">
-                        <Mail size={16} className="um-input-icon" />
-                        <input type="email" className="um-form-input with-icon" defaultValue={user?.email || "ananda.m@innotech.co.th"} />
+                        <Mail size={16} className="um-input-icon" style={{ color: '#9ca3af' }} />
+                        <input type="email" className="um-form-input with-icon" defaultValue={user?.email || "ananda.m@innotech.co.th"} disabled style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }} />
                       </div>
                     </div>
                     <div className="um-form-group">

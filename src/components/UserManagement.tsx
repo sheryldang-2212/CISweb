@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Search, Eye, PowerOff, Mail, XCircle, UserPlus, Play, Shield, Key } from 'lucide-react';
+import { Download, Search, Eye, PowerOff, Mail, XCircle, UserPlus, Play, Shield, Key, Edit, Settings, Lock } from 'lucide-react';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import InviteStaffDrawer from './InviteStaffDrawer';
 import UserFormModal from './UserFormModal';
@@ -11,10 +11,8 @@ const MOCK_USERS = [
   { id: '3', name: 'Susan Moore', email: 'susan.moore@innotechlab.net', phone: '+66 871-2231', clinic: 'Sathorn Family Clinic', additionalClinics: '+1 more', role: ['Clinic Admin'], status: 'Active', lastLogin: 'Jan 16, 2026\n17:33', hasKey: false },
   { id: '4', name: 'Orawan Petchara', email: 'orawan.petchara@innotechlab.net', phone: '+66 838-2305', clinic: 'Phuket Wellness Center', role: ['Clinic Admin'], status: 'Inactive', lastLogin: 'Feb 21, 2026\n10:44', hasKey: false },
   { id: '5', name: 'Daniel Srisawat', email: 'daniel.srisawat@innotechlab.net', phone: '+66 079-2539', clinic: 'Ekkamai Dental & Medical', role: ['Doctor'], status: 'Active', lastLogin: 'May 8, 2026\n09:17', hasKey: false },
-  { id: '6', name: 'Michael Wright', email: 'michael.wright@innotechlab.net', phone: '+66 859-2693', clinic: 'Silom Health Services', role: ['Doctor'], status: 'Locked', lastLogin: 'Jan 10, 2026\n13:39', hasKey: false },
   { id: '7', name: 'Alice Tan', email: 'alice.tan@innotechlab.net', phone: '-', clinic: 'Platform', role: ['Receptionist'], status: 'Pending Invitation', lastLogin: '-', hasKey: false },
   { id: '8', name: 'James Doe', email: 'james.doe@innotechlab.net', phone: '-', clinic: 'Platform', role: ['Technician'], status: 'Invitation Expired', lastLogin: '-', hasKey: false },
-  { id: '9', name: 'John Smith', email: 'john.smith@innotechlab.net', phone: '-', clinic: 'Platform', role: ['Technician'], status: 'Cancelled', lastLogin: '-', hasKey: false },
 ];
 
 interface UserManagementProps {
@@ -28,6 +26,7 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
   const [activeFormTab, setActiveFormTab] = useState<'profile' | 'permissions' | 'security'>('profile');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [viewUser, setViewUser] = useState<any>(null);
+  const [viewUserTab, setViewUserTab] = useState<'information' | 'permissions' | 'history'>('information');
   const [selectedClinicId, setSelectedClinicId] = useState<string>(currentClinic?.id || 'all');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showInviteDrawer, setShowInviteDrawer] = useState(false);
@@ -128,7 +127,7 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
             <Download size={16} /> Export Users
           </button>
           <button className="um-btn-primary" onClick={() => setShowInviteDrawer(true)}>
-            <UserPlus size={16} /> Invite Staff
+            <UserPlus size={16} /> Add User
           </button>
         </div>
       </div>
@@ -151,10 +150,6 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
               <div className="um-filters">
                 <div className="um-filter-group">
                   <label>Role:</label>
-                  <select className="um-filter-select"><option>All</option></select>
-                </div>
-                <div className="um-filter-group">
-                  <label>Clinic:</label>
                   <select className="um-filter-select"><option>All</option></select>
                 </div>
                 <div className="um-filter-group">
@@ -222,37 +217,26 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
                           
                           {openMenuId === user.id && (
                             <div className="um-action-menu" onClick={(e) => e.stopPropagation()}>
-                              <button className="um-action-item" onClick={() => { setOpenMenuId(null); setViewUser(user); }}>
-                                <Eye size={14} className="um-action-icon" /> View Details
-                              </button>
-                              
                               {(user.status === 'Pending Invitation' || user.status === 'Invitation Expired') && (
-                                <>
-                                  <button className="um-action-item" onClick={() => handleResendInvite(user.id)}>
-                                    <Mail size={14} className="um-action-icon" /> Resend Invitation
-                                  </button>
-                                  <button className="um-action-item danger" style={{ color: '#ef4444' }} onClick={() => handleCancelInvite(user.id)}>
-                                    <XCircle size={14} className="um-action-icon" /> Cancel Invitation
-                                  </button>
-                                </>
-                              )}
-
-                              {user.status === 'Active' && (
-                                <>
-                                  <button className="um-action-item" onClick={() => { setOpenMenuId(null); handleEditUser(user, 'permissions'); }}>
-                                    <Shield size={14} className="um-action-icon" /> Manage Permissions
-                                  </button>
-                                  <button className="um-action-item" onClick={() => handleDeactivate(user.id)}>
-                                    <PowerOff size={14} className="um-action-icon" /> Deactivate
-                                  </button>
-                                </>
-                              )}
-
-                              {user.status === 'Inactive' && (
-                                <button className="um-action-item" onClick={() => handleReactivate(user.id)}>
-                                  <Play size={14} className="um-action-icon" /> Reactivate
+                                <button className="um-action-item" onClick={() => { setOpenMenuId(null); alert('Invitation resent successfully!'); }}>
+                                  <Mail size={14} className="um-action-icon" /> Resend Invitation
                                 </button>
                               )}
+                              <button className="um-action-item" onClick={() => { setOpenMenuId(null); setViewUserTab('information'); setViewUser(user); }}>
+                                <Eye size={14} className="um-action-icon" /> View detail
+                              </button>
+                              <button className="um-action-item" onClick={() => { setOpenMenuId(null); setViewUserTab('information'); setViewUser(user); }}>
+                                <Edit size={14} className="um-action-icon" /> Edit user
+                              </button>
+                              <button className="um-action-item" onClick={() => { setOpenMenuId(null); setViewUserTab('permissions'); setViewUser(user); }}>
+                                <Settings size={14} className="um-action-icon" /> Manager Permission
+                              </button>
+                              <button className="um-action-item" onClick={() => { setOpenMenuId(null); }}>
+                                <Lock size={14} className="um-action-icon" /> Reset password
+                              </button>
+                              <button className="um-action-item" onClick={() => handleDeactivate(user.id)}>
+                                <XCircle size={14} className="um-action-icon" /> Deactivate
+                              </button>
                             </div>
                           )}
                         </div>
@@ -286,6 +270,7 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
       {viewUser && (
         <UserDetailsDrawer 
           user={viewUser} 
+          initialTab={viewUserTab}
           onClose={() => setViewUser(null)} 
           onEdit={() => handleEditUser(viewUser)}
         />

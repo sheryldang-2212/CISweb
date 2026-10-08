@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ClipboardList, Clock, BriefcaseMedical, CheckCircle2, Stethoscope, AlertCircle, Calendar, Users as UsersIcon, ShieldCheck, Package, History, UserPlus, Settings, Lock, Key, ChevronRight, FlaskConical, Building2, Server, MoreHorizontal } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, LabelList } from 'recharts';
 import PatientFormModal from './PatientFormModal';
 import LabOrderFormModal from './LabOrderFormModal';
 import PrintBarcodeModal from './PrintBarcodeModal';
@@ -25,6 +26,69 @@ export default function Dashboard({ currentRole, setActiveTab }: DashboardProps)
   const todayStr = new Date().toISOString().split('T')[0];
   const [techDateRange, setTechDateRange] = useState({ start: todayStr, end: todayStr });
   const [doctorDateRange, setDoctorDateRange] = useState({ start: todayStr, end: todayStr });
+  
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+  const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+  
+  const [adminViewBy, setAdminViewBy] = useState('Day');
+  const [adminPreset, setAdminPreset] = useState('Last 30 days');
+  const [showAdminDatePopup, setShowAdminDatePopup] = useState(false);
+  const [adminAppliedDate, setAdminAppliedDate] = useState({ start: thirtyDaysAgoStr, end: todayStr });
+  const [adminTempDate, setAdminTempDate] = useState({ start: thirtyDaysAgoStr, end: todayStr });
+
+  const handleAdminPresetSelect = (preset: string) => {
+    setAdminPreset(preset);
+    const end = new Date();
+    let start = new Date();
+    
+    if (preset === 'Last 7 days') {
+      start.setDate(start.getDate() - 6);
+    } else if (preset === 'Last 30 days') {
+      start.setDate(start.getDate() - 29);
+    } else if (preset === 'Last 90 days') {
+      start.setDate(start.getDate() - 89);
+    } else if (preset === 'This month') {
+      start.setDate(1);
+    } else if (preset === 'Last month') {
+      start.setMonth(start.getMonth() - 1);
+      start.setDate(1);
+      end.setDate(0); 
+    }
+    
+    if (preset !== 'Custom range') {
+      setAdminTempDate({
+        start: start.toISOString().split('T')[0],
+        end: end.toISOString().split('T')[0]
+      });
+    }
+  };
+
+  const handleAdminApplyDate = () => {
+    if (new Date(adminTempDate.start) > new Date(adminTempDate.end)) {
+      alert('Start date must be on or before end date.');
+      return;
+    }
+    const endObj = new Date(adminTempDate.end);
+    endObj.setHours(23, 59, 59, 999);
+    if (endObj > new Date()) {
+      alert('Cannot select future dates.');
+      return;
+    }
+    setAdminAppliedDate(adminTempDate);
+    setShowAdminDatePopup(false);
+  };
+
+  const formatDateStr = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  };
+
+  const dateDisplay = adminPreset === 'Custom range' 
+    ? `${formatDateStr(adminAppliedDate.start)} - ${formatDateStr(adminAppliedDate.end)}`
+    : `${adminPreset} · ${formatDateStr(adminAppliedDate.start)} - ${formatDateStr(adminAppliedDate.end)}`;
+
 
   const renderReceptionistDashboard = () => {
     return (
@@ -455,136 +519,347 @@ export default function Dashboard({ currentRole, setActiveTab }: DashboardProps)
   );
 };
 
-  const renderAdminDashboard = () => (
-    <div className="admin-dashboard-container">
-      <div className="admin-dashboard-header">
-        <div>
-          <h1 className="page-title mb-0">System Overview</h1>
-          <p className="page-subtitle mt-1">Manage users, clinic settings, and monitor system activity.</p>
-        </div>
-        <div className="admin-status-badge">
-          <span className="status-indicator online"></span>
-          System Status: Operational
-        </div>
-      </div>
+  const renderAdminDashboard = () => {
+    const getDaysDiff = (start: string, end: string) => {
+      const d1 = new Date(start);
+      const d2 = new Date(end);
+      return Math.round((d2.getTime() - d1.getTime()) / (1000 * 3600 * 24)) + 1;
+    };
+
+    const daysDiff = getDaysDiff(adminAppliedDate.start, adminAppliedDate.end);
+    let actualView = adminViewBy;
+    const viewText = actualView === 'Day' ? 'Daily totals' : actualView === 'Week' ? 'Weekly totals' : 'Monthly totals';
+
+    const getChartData = (startDateStr: string, endDateStr: string, viewBy: string, isPatient: boolean) => {
+      const start = new Date(startDateStr);
+      start.setHours(0,0,0,0);
+      const end = new Date(endDateStr);
+      end.setHours(23,59,59,999);
       
-      <div className="admin-metrics-grid">
-        <div className="admin-metric-card">
-          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+      const dailyData = [];
+      const cur = new Date(start);
+      while(cur <= end) {
+        const dayOfMonth = cur.getDate();
+        const count = isPatient ? (5 + (dayOfMonth % 3)) : (15 + (dayOfMonth % 5));
+        dailyData.push({ date: new Date(cur), count });
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      const grouped = new Map<string, number>();
+      
+      dailyData.forEach(d => {
+        let key = '';
+        if (viewBy === 'Month') {
+          key = d.date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).replace(/ /g, ' ');
+        } else if (viewBy === 'Week') {
+          const temp = new Date(d.date);
+          temp.setDate(temp.getDate() - (temp.getDay() === 0 ? 6 : temp.getDay() - 1));
+          const wEnd = new Date(temp);
+          wEnd.setDate(wEnd.getDate() + 6);
+          key = `${temp.getDate()} ${temp.toLocaleDateString('en-GB', {month:'short'})} - ${wEnd.getDate()} ${wEnd.toLocaleDateString('en-GB', {month:'short'})}`;
+        } else {
+          key = `${String(d.date.getDate()).padStart(2, '0')} ${d.date.toLocaleDateString('en-GB', {month:'short'})}`;
+        }
+        grouped.set(key, (grouped.get(key) || 0) + d.count);
+      });
+
+      return Array.from(grouped.entries()).map(([name, count]) => ({ name, count }));
+    };
+
+    const patientData = getChartData(adminAppliedDate.start, adminAppliedDate.end, actualView, true);
+    const labOrderData = getChartData(adminAppliedDate.start, adminAppliedDate.end, actualView, false);
+
+    const patientTotal = patientData.reduce((sum, item) => sum + item.count, 0);
+    const labOrderTotal = labOrderData.reduce((sum, item) => sum + item.count, 0);
+    const showPatientLabels = patientData.length <= 12;
+    const showLabLabels = labOrderData.length <= 12;
+
+    return (
+      <div className="admin-dashboard-container">
+        <div className="admin-dashboard-header" style={{ marginBottom: '16px' }}>
+          <div>
+            <h1 className="page-title mb-0">Clinic Overview</h1>
+            <p className="page-subtitle mt-1">Manage users, clinic settings, and monitor system activity.</p>
+          </div>
+        </div>
+      
+      <div style={{ marginBottom: '12px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b' }}>Current clinic totals</h3>
+      </div>
+      <div className="admin-metrics-grid" style={{ marginBottom: '24px' }}>
+        <div className="admin-metric-card" style={{ display: 'flex', alignItems: 'center', padding: '20px', gap: '16px' }}>
+          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <UsersIcon size={24} />
           </div>
-          <div className="metric-content">
-            <span className="metric-label">Total Staff</span>
-            <span className="metric-value text-blue-600">24</span>
-            <span className="metric-trend positive">↑ 2 this month</span>
+          <div className="metric-content" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="metric-label" style={{ fontSize: '13px', color: '#64748b' }}>Total Staff</span>
+            <span className="metric-value text-blue-600" style={{ fontSize: '28px', fontWeight: 'bold' }}>24</span>
           </div>
         </div>
         
-        <div className="admin-metric-card">
-          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+        <div className="admin-metric-card" style={{ display: 'flex', alignItems: 'center', padding: '20px', gap: '16px' }}>
+          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Key size={24} />
           </div>
-          <div className="metric-content">
-            <span className="metric-label">Active Roles</span>
-            <span className="metric-value text-purple-600">8</span>
-            <span className="metric-trend neutral">No changes</span>
+          <div className="metric-content" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="metric-label" style={{ fontSize: '13px', color: '#64748b' }}>Active Roles</span>
+            <span className="metric-value text-purple-600" style={{ fontSize: '28px', fontWeight: 'bold' }}>8</span>
           </div>
         </div>
         
-        <div className="admin-metric-card">
-          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>
+        <div className="admin-metric-card" style={{ display: 'flex', alignItems: 'center', padding: '20px', gap: '16px' }}>
+          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Package size={24} />
           </div>
-          <div className="metric-content">
-            <span className="metric-label">Active Services</span>
-            <span className="metric-value text-green-600">45</span>
-            <span className="metric-trend positive">↑ 5 new</span>
+          <div className="metric-content" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="metric-label" style={{ fontSize: '13px', color: '#64748b' }}>Active Tests</span>
+            <span className="metric-value text-green-600" style={{ fontSize: '28px', fontWeight: 'bold' }}>45</span>
           </div>
         </div>
 
-        <div className="admin-metric-card">
-          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9' }}>
+        <div className="admin-metric-card" style={{ display: 'flex', alignItems: 'center', padding: '20px', gap: '16px' }}>
+          <div className="metric-icon-wrapper" style={{ backgroundColor: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <UsersIcon size={24} />
           </div>
-          <div className="metric-content">
-            <span className="metric-label">Total Patients</span>
-            <span className="metric-value" style={{ color: '#0ea5e9' }}>1,284</span>
-            <span className="metric-trend positive">↑ 12 this week</span>
+          <div className="metric-content" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="metric-label" style={{ fontSize: '13px', color: '#64748b' }}>Total Patients</span>
+            <span className="metric-value" style={{ color: '#0ea5e9', fontSize: '28px', fontWeight: 'bold' }}>1,284</span>
           </div>
         </div>
       </div>
 
-      <div className="admin-main-grid">
-        <div className="admin-grid-column-left">
-          <div className="admin-section-card">
-            <div className="section-header">
-              <h2>Quick Actions</h2>
-            </div>
-            <div className="quick-actions-grid">
-              <button className="quick-action-btn" onClick={() => setActiveTab('User Management')}>
-                <div className="action-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                  <UserPlus size={20} />
-                </div>
-                <span>Add New Staff</span>
-              </button>
+      <div className="admin-section-card" style={{ padding: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+          <div>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', margin: 0 }}>Activity Overview</h2>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>{viewText} • Applies to both charts</p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ position: 'relative' }}>
+              <div 
+                onClick={() => setShowAdminDatePopup(!showAdminDatePopup)}
+                style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'white', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <Calendar size={16} className="text-muted" />
+                <span style={{ fontSize: '13px', color: '#334155' }}>{dateDisplay}</span>
+              </div>
               
-              <button className="quick-action-btn" onClick={() => setActiveTab('Roles & Permissions')}>
-                <div className="action-icon" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
-                  <Lock size={20} />
+              {showAdminDatePopup && (
+                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, width: '320px', padding: '16px' }}>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                      {['Last 7 days', 'Last 30 days', 'Last 90 days', 'This month', 'Last month', 'Custom range'].map(preset => (
+                        <div 
+                          key={preset}
+                          onClick={() => handleAdminPresetSelect(preset)}
+                          style={{ padding: '6px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', backgroundColor: adminPreset === preset ? '#eff6ff' : 'transparent', color: adminPreset === preset ? '#2563eb' : '#475569', fontWeight: adminPreset === preset ? 500 : 400 }}
+                        >
+                          {preset}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>From date</span>
+                        <input 
+                          type="date" 
+                          value={adminTempDate.start}
+                          onChange={(e) => { setAdminPreset('Custom range'); setAdminTempDate(prev => ({ ...prev, start: e.target.value })); }}
+                          style={{ padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>To date</span>
+                        <input 
+                          type="date" 
+                          value={adminTempDate.end}
+                          onChange={(e) => { setAdminPreset('Custom range'); setAdminTempDate(prev => ({ ...prev, end: e.target.value })); }}
+                          style={{ padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                    <button onClick={() => setShowAdminDatePopup(false)} style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #e2e8f0', background: 'white', color: '#475569', fontSize: '13px', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={handleAdminApplyDate} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#3b82f6', color: 'white', fontSize: '13px', cursor: 'pointer' }}>Apply</button>
+                  </div>
                 </div>
-                <span>Manage Roles</span>
-              </button>
+              )}
+            </div>
 
-              <button className="quick-action-btn" onClick={() => setActiveTab('Clinic Settings')}>
-                <div className="action-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
-                  <Settings size={20} />
-                </div>
-                <span>Clinic Settings</span>
-              </button>
-
-              <button className="quick-action-btn" onClick={() => setActiveTab('Audit Logs')}>
-                <div className="action-icon" style={{ backgroundColor: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }}>
-                  <History size={20} />
-                </div>
-                <span>View Audit Logs</span>
-              </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'white', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <span style={{ fontSize: '13px', color: '#64748b' }}>View by:</span>
+              <select value={adminViewBy} onChange={(e) => setAdminViewBy(e.target.value)} style={{ border: 'none', outline: 'none', fontSize: '13px', color: '#334155', background: 'transparent', fontWeight: 500 }}>
+                <option value="Day">Day</option>
+                <option value="Week">Week</option>
+                <option value="Month">Month</option>
+              </select>
             </div>
           </div>
+        </div>
 
-          <div className="admin-section-card mt-6">
-            <div className="section-header">
-              <h2>Recent System Activity</h2>
-              <button className="view-all-btn" onClick={() => setActiveTab('Audit Logs')}>
-                View all logs <ChevronRight size={16} />
-              </button>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          <div>
+            <div style={{ marginBottom: '16px' }}>
+              <span style={{ fontSize: '32px', fontWeight: 'bold', color: '#0ea5e9', display: 'inline-block', marginRight: '12px' }}>{patientTotal}</span>
+              <div style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '6px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>New Patient Registrations</h3>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>New clinic patient profiles</p>
+              </div>
             </div>
-            <div className="audit-log-list">
-              {[
-                { id: 1, action: 'Updated Clinic Working Hours', user: 'Admin User', time: '10 mins ago', type: 'settings' },
-                { id: 2, action: 'Created new role: Senior Technician', user: 'Admin User', time: '1 hour ago', type: 'roles' },
-                { id: 3, action: 'Failed login attempt (IP: 192.168.1.104)', user: 'Unknown', time: '3 hours ago', type: 'security' },
-                { id: 4, action: 'Added new service: Comprehensive Blood Test', user: 'Admin User', time: 'Yesterday', type: 'services' },
-                { id: 5, action: 'Password reset requested for Dr. Wilson', user: 'System', time: 'Yesterday', type: 'security' }
-              ].map(log => (
-                <div key={log.id} className="audit-log-item">
-                  <div className={`log-icon ${log.type}`}>
-                    {log.type === 'settings' && <Settings size={14} />}
-                    {log.type === 'roles' && <Key size={14} />}
-                    {log.type === 'security' && <ShieldCheck size={14} />}
-                    {log.type === 'services' && <Package size={14} />}
+            <div style={{ width: '100%', height: '240px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={patientData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorPatient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} domain={[0, 100]} />
+                  <Tooltip 
+                    cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '3 3' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  />
+                  <Area type="linear" dataKey="count" stroke="#0ea5e9" strokeWidth={2} fillOpacity={1} fill="url(#colorPatient)" activeDot={{ r: 6, fill: '#0ea5e9', stroke: '#fff', strokeWidth: 2 }}>
+                    {showPatientLabels && <LabelList dataKey="count" position="top" fill="#0ea5e9" fontSize={12} fontWeight={600} offset={10} />}
+                  </Area>
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            {patientTotal === 0 && (
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+                <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No activity in this period.</span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <span style={{ fontSize: '32px', fontWeight: 'bold', color: '#8b5cf6', display: 'inline-block', marginRight: '12px' }}>{labOrderTotal}</span>
+              <div style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '6px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>Lab Order Volume</h3>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Lab orders created</p>
+              </div>
+            </div>
+            <div style={{ width: '100%', height: '240px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={labOrderData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} domain={[0, 250]} />
+                  <Tooltip 
+                    cursor={{ fill: '#f1f5f9' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  />
+                  <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                    {showLabLabels && <LabelList dataKey="count" position="top" fill="#8b5cf6" fontSize={12} fontWeight={600} offset={10} />}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            {labOrderTotal === 0 && (
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+                <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No activity in this period.</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-main-grid" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="admin-section-card">
+          <div className="section-header" style={{ marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600 }}>Quick Actions</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+            <button 
+              onClick={() => setActiveTab('User Management')}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '8px', border: 'none', backgroundColor: '#d97706', color: 'white', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <UserPlus size={20} />
+                <span style={{ fontWeight: 600, fontSize: '15px' }}>Invite Staff</span>
+              </div>
+              <ChevronRight size={18} opacity={0.8} />
+            </button>
+            
+            <button 
+              onClick={() => setActiveTab('Roles & Permissions')}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#8b5cf6' }}><Key size={20} /></div>
+                <span style={{ fontWeight: 600, fontSize: '15px' }}>Manage Roles</span>
+              </div>
+              <ChevronRight size={18} color="#94a3b8" />
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('Clinic Settings')}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#f59e0b' }}><Settings size={20} /></div>
+                <span style={{ fontWeight: 600, fontSize: '15px' }}>Clinic Settings</span>
+              </div>
+              <ChevronRight size={18} color="#94a3b8" />
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('Audit Logs')}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#64748b' }}><History size={20} /></div>
+                <span style={{ fontWeight: 600, fontSize: '15px' }}>View Audit Logs</span>
+              </div>
+              <ChevronRight size={18} color="#94a3b8" />
+            </button>
+          </div>
+        </div>
+
+        <div className="admin-section-card">
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>Recent System Activity</h2>
+            <button style={{ background: 'none', border: 'none', color: '#3b82f6', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }} onClick={() => setActiveTab('Audit Logs')}>
+              View all logs <ChevronRight size={14} />
+            </button>
+          </div>
+          <div className="audit-log-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              { id: 1, action: 'Updated Clinic Working Hours', user: 'Admin User', time: '10 mins ago', timestamp: '06 Oct 2026, 10:24', type: 'settings' },
+              { id: 2, action: 'Created new role: Senior Technician', user: 'Admin User', time: '1 hour ago', timestamp: '06 Oct 2026, 09:18', type: 'roles' },
+              { id: 3, action: 'Failed login attempt (IP: 192.168.1.104)', user: 'Unknown', time: '3 hours ago', timestamp: '06 Oct 2026, 06:43', type: 'security' },
+              { id: 4, action: 'Added new service: Comprehensive Blood Test', user: 'Admin User', time: 'Yesterday', timestamp: '05 Oct 2026, 16:11', type: 'services' },
+              { id: 5, action: 'Password reset requested for Dr. Wilson', user: 'System', time: 'Yesterday', timestamp: '05 Oct 2026, 11:27', type: 'security' }
+            ].map((log, index) => (
+              <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: index < 4 ? '16px' : '0', borderBottom: index < 4 ? '1px solid #f1f5f9' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ 
+                    width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: log.type === 'settings' ? '#fef3c7' : log.type === 'roles' ? '#f3e8ff' : log.type === 'security' ? '#fee2e2' : '#dcfce7',
+                    color: log.type === 'settings' ? '#d97706' : log.type === 'roles' ? '#9333ea' : log.type === 'security' ? '#ef4444' : '#16a34a'
+                  }}>
+                    {log.type === 'settings' && <Settings size={16} />}
+                    {log.type === 'roles' && <Key size={16} />}
+                    {log.type === 'security' && <ShieldCheck size={16} />}
+                    {log.type === 'services' && <Package size={16} />}
                   </div>
-                  <div className="log-details">
-                    <span className="log-action">{log.action}</span>
-                    <span className="log-meta">By {log.user} • {log.time}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>{log.action}</span>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>By {log.user} • {log.time}</span>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div style={{ fontSize: '13px', color: '#64748b' }}>
+                  {log.timestamp}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
-  );
+    );
+  };
+
   const renderPlatformAdminDashboard = () => (
     <div className="admin-dashboard-container">
       <div className="admin-dashboard-header">

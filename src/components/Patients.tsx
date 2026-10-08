@@ -44,9 +44,10 @@ export const initialMockPatients: Patient[] = [
 
 interface PatientsProps {
   isDoctor?: boolean;
+  hideTitle?: boolean;
 }
 
-export default function Patients({ isDoctor = false }: PatientsProps) {
+export default function Patients({ isDoctor = false, hideTitle = false }: PatientsProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeFilterDropdown, setActiveFilterDropdown] = useState<string | null>(null);
   const [patientsList, setPatientsList] = useState<Patient[]>(initialMockPatients);
@@ -61,8 +62,18 @@ export default function Patients({ isDoctor = false }: PatientsProps) {
         setViewingPatient(patient);
       }
     };
+    
+    const handleOpenRegister = () => {
+      setIsRegisterOpen(true);
+    };
+
     window.addEventListener('navigate-to-patient', handleNavigate);
-    return () => window.removeEventListener('navigate-to-patient', handleNavigate);
+    window.addEventListener('open-register-modal', handleOpenRegister);
+    
+    return () => {
+      window.removeEventListener('navigate-to-patient', handleNavigate);
+      window.removeEventListener('open-register-modal', handleOpenRegister);
+    };
   }, [patientsList]);
   
   // Filter States
@@ -150,18 +161,20 @@ export default function Patients({ isDoctor = false }: PatientsProps) {
   }
 
   return (
-    <div className="patients-container">
-      <div className="patients-header">
-        <h1 className="page-title mb-0">Patients</h1>
-        {!isDoctor && (
-          <button className="btn-primary" onClick={openRegisterModal}>
-            <Plus size={16} />
-            Register New Patient
-          </button>
-        )}
-      </div>
+    <div className="patients-container" style={hideTitle ? { gap: 0 } : {}}>
+      {!hideTitle && (
+        <div className="patients-header">
+          <h1 className="page-title mb-0">Patients</h1>
+          {!isDoctor && (
+            <button className="btn-primary" onClick={openRegisterModal}>
+              <Plus size={16} />
+              Register New Patient
+            </button>
+          )}
+        </div>
+      )}
 
-      <div className="patients-card">
+      <div className="patients-card" style={hideTitle ? { borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none' } : {}}>
         <div className="filters-bar">
           <div className="search-filter">
             <Search size={18} className="text-muted" />

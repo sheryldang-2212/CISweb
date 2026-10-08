@@ -139,20 +139,25 @@ export default function ClinicSettings() {
     { id: 'general', label: 'General Information', icon: Building2 },
     { id: 'hours', label: 'Business Hours', icon: Clock },
     { id: 'operations', label: 'Delivery Scheduling', icon: Truck },
-    { id: 'notifications', label: 'Notification Settings', icon: Bell },
   ];
 
   return (
     <div className="clinic-settings-container">
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>Clinic Settings</h1>
+        <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Manage clinic details, business hours, and operational configurations.</p>
+      </div>
+
       {/* Horizontal Tabs */}
-      <div className="clinic-tabs">
+      <div className="pd-tabs-new">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`clinic-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+            className={`pd-tab-new ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <tab.icon size={18} className="clinic-tab-icon" />
+            <tab.icon size={18} />
             {tab.label}
           </button>
         ))}
@@ -405,47 +410,7 @@ export default function ClinicSettings() {
           </div>
         )}
 
-        {/* TAB 6: Notification Settings */}
-        {activeTab === 'notifications' && (
-          <div className="settings-panel">
-            <h2 className="settings-section-title">Clinic Notification Settings</h2>
-            <p className="text-muted" style={{ fontSize: '14px', marginBottom: '16px' }}>
-              Configure notification events, recipients, and delivery channels for this clinic.
-            </p>
 
-            <div className="notif-table-container">
-              {NOTIFICATION_SECTIONS.map(section => {
-                const SectionIcon = section.icon;
-                return (
-                  <div key={section.id} className="notif-section-card">
-                    <div className="notif-section-header">
-                      <div className="notif-section-icon" style={{ backgroundColor: section.bgColor, color: section.color }}>
-                        <SectionIcon size={18} />
-                      </div>
-                      <h3>{section.title}</h3>
-                    </div>
-                    
-                    <table className="notif-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: '40px' }}></th>
-                          <th style={{ width: '40%' }}>Event</th>
-                          <th style={{ width: '40%' }}>Recipient</th>
-                          <th style={{ width: '20%' }}>In-App</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {section.events.map((ev, index) => (
-                          <NotificationRow key={ev.id} event={ev} index={index} />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
       </div>
     </div>

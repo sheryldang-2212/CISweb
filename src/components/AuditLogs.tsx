@@ -18,8 +18,10 @@ export default function AuditLogs() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedLog, setSelectedLog] = useState<any>(null);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'All' | 'Error'>('All');
 
   const filteredLogs = MOCK_LOGS.filter(log => {
+    const matchesTab = activeTab === 'All' || log.status === 'Failure';
     const matchesSearch = log.actor.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           log.objectId.toLowerCase().includes(searchTerm.toLowerCase());
@@ -27,7 +29,7 @@ export default function AuditLogs() {
     const matchesRole = roleFilter === 'All' || log.role === roleFilter;
     const matchesStatus = statusFilter === 'All' || log.status === statusFilter;
     
-    return matchesSearch && matchesModule && matchesRole && matchesStatus;
+    return matchesTab && matchesSearch && matchesModule && matchesRole && matchesStatus;
   });
 
   const handleExport = () => {
@@ -40,6 +42,37 @@ export default function AuditLogs() {
       <div className="al-header">
         <h1 className="al-title">Audit Logs</h1>
         <p className="al-subtitle">Review user and system activities for compliance.</p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '32px', padding: '0 32px', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
+        <button 
+          onClick={() => setActiveTab('All')}
+          style={{ 
+            padding: '12px 4px', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'All' ? '2px solid #c09867' : '2px solid transparent',
+            color: activeTab === 'All' ? '#c09867' : '#64748b',
+            fontWeight: activeTab === 'All' ? 600 : 500,
+            cursor: 'pointer',
+            fontSize: '15px'
+          }}>
+          All
+        </button>
+        <button 
+          onClick={() => setActiveTab('Error')}
+          style={{ 
+            padding: '12px 4px', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'Error' ? '2px solid #c09867' : '2px solid transparent',
+            color: activeTab === 'Error' ? '#c09867' : '#64748b',
+            fontWeight: activeTab === 'Error' ? 600 : 500,
+            cursor: 'pointer',
+            fontSize: '15px'
+          }}>
+          Error
+        </button>
       </div>
 
       <div className="al-filters-row">

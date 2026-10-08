@@ -12,7 +12,7 @@ interface InviteStaffDrawerProps {
   onInvite: (users: any[]) => void;
 }
 
-const VALID_ROLES = ['Clinic Admin', 'Doctor', 'Technician', 'Receptionist'];
+const VALID_ROLES = ['Doctor', 'Technician', 'Receptionist'];
 
 export default function InviteStaffDrawer({ onClose, currentRole, currentClinic, mockClinics, existingUsers, onInvite }: InviteStaffDrawerProps) {
   const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');

@@ -31,7 +31,7 @@ export default function PlatformClinics() {
 
   // Form State
   const [newClinic, setNewClinic] = useState({ 
-    type: 'Clinic', name: '', legalName: '', address: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: ''
+    type: 'Clinic', name: '', legalName: '', address: '', street: '', city: '', state: '', zip: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: ''
   });
   const [editClinicData, setEditClinicData] = useState({ name: '', code: '', address: '' });
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -75,7 +75,7 @@ export default function PlatformClinics() {
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newClinic.name.trim() || !newClinic.legalName.trim() || !newClinic.address.trim()) return;
+    if (!newClinic.name.trim() || !newClinic.legalName.trim() || !newClinic.street.trim() || !newClinic.city.trim()) return;
     
     if (!duplicateWarning && checkDuplicates()) {
       setDuplicateWarning(true);
@@ -99,7 +99,7 @@ export default function PlatformClinics() {
         type: newClinic.type,
         name: newClinic.name.trim(),
         legalName: newClinic.legalName.trim(), 
-        address: newClinic.address.trim(),
+        address: `${newClinic.street.trim()}, ${newClinic.city.trim()}, ${newClinic.state.trim()} ${newClinic.zip.trim()}`.replace(/^[,\s]+|[,\s]+$/g, '').replace(/,\s*,/g, ','),
         contactEmail: newClinic.contactEmail.trim().toLowerCase(),
         contactPhone: newClinic.contactPhone.trim(),
         country: newClinic.country,
@@ -124,7 +124,7 @@ export default function PlatformClinics() {
       
       setClinics([clinic, ...clinics]);
       setShowCreateModal(false);
-      setNewClinic({ type: 'Clinic', name: '', legalName: '', address: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: '' });
+      setNewClinic({ type: 'Clinic', name: '', legalName: '', address: '', street: '', city: '', state: '', zip: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: '' });
       setIsDirty(false);
       setDuplicateWarning(false);
       setIsCreating(false);
@@ -510,16 +510,10 @@ export default function PlatformClinics() {
                 <div className="detail-grid" style={{ marginBottom: '24px', gap: '16px' }}>
                   <div className="form-group mb-0" style={{ gridColumn: 'span 2' }}>
                     <label className="form-label">Type *</label>
-                    <div style={{ display: 'flex', gap: '24px', marginTop: '8px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input type="radio" name="orgType" value="Clinic" checked={newClinic.type === 'Clinic'} onChange={(e) => handleNewClinicChange('type', e.target.value)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>Clinic</span>
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input type="radio" name="orgType" value="Hospital" checked={newClinic.type === 'Hospital'} onChange={(e) => handleNewClinicChange('type', e.target.value)} style={{ width: '16px', height: '16px', accentColor: '#4f46e5' }} />
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>Hospital</span>
-                      </label>
-                    </div>
+                    <select className="form-input" value={newClinic.type} onChange={(e) => handleNewClinicChange('type', e.target.value)}>
+                      <option value="Clinic">Clinic</option>
+                      <option value="Hospital">Hospital</option>
+                    </select>
                   </div>
                 </div>
 
@@ -538,8 +532,20 @@ export default function PlatformClinics() {
                 <h3 style={{ fontSize: '12px', fontWeight: 700, color: '#111827', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', marginTop: 0 }}>Location & Localization</h3>
                 <div className="detail-grid" style={{ marginBottom: '24px', gap: '16px' }}>
                   <div className="form-group mb-0" style={{ gridColumn: 'span 2' }}>
-                    <label className="form-label">Physical Address *</label>
-                    <input type="text" required className="form-input" value={newClinic.address} onChange={(e) => handleNewClinicChange('address', e.target.value)} placeholder="Full physical address" />
+                    <label className="form-label">Street Address *</label>
+                    <input type="text" required className="form-input" value={newClinic.street} onChange={(e) => handleNewClinicChange('street', e.target.value)} placeholder="123 Wellness Ave, Building B" />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label className="form-label">City *</label>
+                    <input type="text" required className="form-input" value={newClinic.city} onChange={(e) => handleNewClinicChange('city', e.target.value)} placeholder="Bangkok" />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label className="form-label">State / Province</label>
+                    <input type="text" className="form-input" value={newClinic.state} onChange={(e) => handleNewClinicChange('state', e.target.value)} placeholder="Bangkok" />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label className="form-label">Postal Code</label>
+                    <input type="text" className="form-input" value={newClinic.zip} onChange={(e) => handleNewClinicChange('zip', e.target.value)} placeholder="10110" />
                   </div>
                   <div className="form-group mb-0">
                     <label className="form-label">Country (Locked for MVP) *</label>
@@ -620,7 +626,7 @@ export default function PlatformClinics() {
                   setShowCreateModal(false);
                   setIsDirty(false);
                   setDuplicateWarning(false);
-                  setNewClinic({ type: 'Clinic', name: '', legalName: '', address: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: '' });
+                  setNewClinic({ type: 'Clinic', name: '', legalName: '', address: '', street: '', city: '', state: '', zip: '', country: 'Thailand', timezone: 'Asia/Bangkok', language: 'English', contactEmail: '', contactPhone: '' });
                 }} 
                 className="btn-primary" 
                 style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}

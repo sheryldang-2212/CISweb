@@ -1,4 +1,8 @@
 .clinic-settings-container {
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --primary: #c09867;
+  --border-color: #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 24px;
