@@ -25,16 +25,7 @@ export default function MobileAppSettings() {
     }, 800);
   };
 
-  const handlePublish = () => {
-    if (confirm('Are you sure you want to publish these configurations to the live Mobile App?')) {
-      setIsSaving(true);
-      setTimeout(() => {
-        setIsSaving(false);
-        setConfigStatus('Published');
-        alert('Configuration published successfully!');
-      }, 1000);
-    }
-  };
+  
 
   // Mock data for Questionnaires
   const [questions] = useState([

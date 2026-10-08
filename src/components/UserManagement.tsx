@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Search, Eye, PowerOff, Mail, XCircle, UserPlus, Play, Shield, Key, Edit, Settings, Lock } from 'lucide-react';
+import { Download, Search, Eye, Mail, XCircle, UserPlus, Key, Edit, Settings, Lock } from 'lucide-react';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import InviteStaffDrawer from './InviteStaffDrawer';
 import UserFormModal from './UserFormModal';
@@ -74,30 +74,15 @@ export default function UserManagement({ currentRole, currentClinic, mockClinics
     setShowInviteDrawer(false);
   };
 
-  const handleResendInvite = (userId: string) => {
-    console.log('[AUDIT] Invitation resent to user ID', userId);
-    setOpenMenuId(null);
-    alert('Invitation resent successfully.');
-  };
-
-  const handleCancelInvite = (userId: string) => {
-    console.log('[AUDIT] Invitation cancelled for user ID', userId);
-    setUsersList(usersList.filter(u => u.id !== userId));
-    setOpenMenuId(null);
-  };
-
+  
+  
   const handleDeactivate = (userId: string) => {
     console.log('[AUDIT] User deactivated:', userId);
     setUsersList(usersList.map(u => u.id === userId ? { ...u, status: 'Inactive' } : u));
     setOpenMenuId(null);
   };
 
-  const handleReactivate = (userId: string) => {
-    console.log('[AUDIT] User reactivated:', userId);
-    setUsersList(usersList.map(u => u.id === userId ? { ...u, status: 'Active' } : u));
-    setOpenMenuId(null);
-  };
-
+  
   return (
     <div className="um-container">
       <div className="um-header">

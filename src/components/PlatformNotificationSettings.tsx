@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import EditNotificationModal from './EditNotificationModal';
 import EditClinicNotificationModal from './EditClinicNotificationModal';
 import { Smartphone, Monitor, FlaskConical, HeartPulse, Activity, MessageSquare, Shield, Mail, Edit2, Users, LifeBuoy, Zap, Settings } from 'lucide-react';

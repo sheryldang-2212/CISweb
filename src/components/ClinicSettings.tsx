@@ -2,49 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   Building2, Clock, 
   Lock, Phone, Mail, Plus, Trash2,
-  Bell, Activity, Users, Database, ChevronDown, Truck
+  Activity, Users, Database, ChevronDown, Truck
 } from 'lucide-react';
 import './ClinicSettings.css';
 
-const NOTIFICATION_SECTIONS = [
-  {
-    id: 'clinical-workflow',
-    title: 'Clinical Workflow',
-    icon: Activity,
-    color: '#3b82f6',
-    bgColor: '#eff6ff',
-    events: [
-      { id: 1, name: 'New Lab Order Created', recipients: ['Technician'], inApp: true },
-      { id: 2, name: 'Lab Result Pending Review', recipients: ['Doctor'], inApp: true },
-      { id: 3, name: 'Lab Result Returned to LIS', recipients: ['Doctor', 'Technician'], inApp: true },
-      { id: 4, name: 'Lab Order Cancelled', recipients: ['Receptionist', 'Technician'], inApp: true },
-    ]
-  },
-  {
-    id: 'patient-link',
-    title: 'Patient Link & Consent',
-    icon: Users,
-    color: '#14b8a6',
-    bgColor: '#f0fdfa',
-    events: [
-      { id: 21, name: 'Patient Linked Successfully', recipients: ['Receptionist'], inApp: true },
-      { id: 22, name: 'Invitation Delivery Failed', recipients: ['Receptionist'], inApp: true },
-      { id: 23, name: 'Consent Withdrawn', recipients: ['Admin'], inApp: true },
-    ]
-  },
-  {
-    id: 'system-lis',
-    title: 'System & LIS Integration',
-    icon: Database,
-    color: '#6366f1',
-    bgColor: '#e0e7ff',
-    events: [
-      { id: 31, name: 'Lab Order Submission Failed', recipients: ['Admin'], inApp: true },
-      { id: 32, name: 'LIS Result Sync Failed', recipients: ['Admin'], inApp: true },
-      { id: 33, name: 'Scheduled Maintenance', recipients: ['All Clinic Staff'], inApp: true },
-    ]
-  }
-];
+
 
 const ROLES_OPTIONS = ['Doctor', 'Receptionist', 'Technician', 'Admin', 'All Clinic Staff', 'Platform Admin'];
 

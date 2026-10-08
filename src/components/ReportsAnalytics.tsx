@@ -202,7 +202,7 @@ export default function ReportsAnalytics({ currentRole }: ReportsAnalyticsProps)
   const activeGenderData = isPlatform ? platformGenderData : clinicGenderData;
   const activePatientRegData = isPlatform ? platformPatientRegData : clinicRegData;
   const activePatientCountData = isPlatform ? platformPatientClinicData : clinicPatientCountData;
-  const activeDemographicsLabData = isPlatform ? platformDemographicsLabData : clinicDemographicsLabData;
+  
 
   const totalLabOrders = isPlatform ? 30 : 26;
   const totalTestsPerformed = isPlatform ? 84 : 78;

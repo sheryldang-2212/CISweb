@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Monitor, Mail, MessageSquare, Info, Check } from 'lucide-react';
 import './EditNotificationModal.css';
 

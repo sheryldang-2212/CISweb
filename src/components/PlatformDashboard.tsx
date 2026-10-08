@@ -1,5 +1,5 @@
 import { 
-  RefreshCw, Building2, ShieldCheck, Settings, PauseCircle, AlertTriangle, ChevronRight, 
+  Building2, ShieldCheck, Settings, PauseCircle, AlertTriangle, ChevronRight, 
   Users, Activity, UserPlus, Plus, Mail, FileText, Calendar, Clock, Package,
   MoreVertical
 } from 'lucide-react';

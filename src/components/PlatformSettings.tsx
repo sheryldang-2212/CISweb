@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { Settings, Save, Smartphone, Shield, Lock, Globe, Building2, Link, Server, Palette } from 'lucide-react';
+import { Settings,  } from 'lucide-react';
 import './Dashboard.css';
 import MobileAppSettings from './MobileAppSettings';
 import PlatformNotificationSettings from './PlatformNotificationSettings';
 
 export default function PlatformSettings() {
   const [activeTab, setActiveTab] = useState('Security & Access');
-  const [multiTenantEnabled, setMultiTenantEnabled] = useState(true);
-  const [globalNotifEnabled, setGlobalNotifEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSavePlatformSettings = () => {

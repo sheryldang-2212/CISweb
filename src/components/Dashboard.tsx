@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardList, Clock, BriefcaseMedical, CheckCircle2, Stethoscope, AlertCircle, Calendar, Users as UsersIcon, ShieldCheck, Package, History, UserPlus, Settings, Lock, Key, ChevronRight, FlaskConical, Building2, Server, MoreHorizontal } from 'lucide-react';
+import { ClipboardList, Clock, BriefcaseMedical, CheckCircle2, Stethoscope, AlertCircle, Calendar, Users as UsersIcon, ShieldCheck, Package, History, UserPlus, Settings, Key, ChevronRight, FlaskConical, Building2, Server, MoreHorizontal } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, LabelList } from 'recharts';
 import PatientFormModal from './PatientFormModal';
 import LabOrderFormModal from './LabOrderFormModal';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Calendar, ChevronDown, Lock } from 'lucide-react';
 import VerifyIdentityModal from './VerifyIdentityModal';
 import './PatientFormModal.css';
